@@ -30,13 +30,13 @@ namespace ParkingLotSimulation
 
         private static void SelectOption()
         {
-            int userChoice = int.Parse(Console.ReadLine());
-            if (userChoice == 1)
+            string userChoice = Console.ReadLine();
+            if (userChoice == "1")
             {
                 ChooseVehicleType();
                 return;
             }
-            else if (userChoice == 2)
+            else if (userChoice == "2")
             {
                 UnParkVehicle();
                 return;

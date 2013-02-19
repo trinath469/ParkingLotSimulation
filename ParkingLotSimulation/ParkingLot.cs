@@ -28,7 +28,7 @@ namespace ParkingLotSimulation
 
         public static ParkingSpot FindFreeSlot(Vehicle vehicle)
         {
-            return parkingSpots.Find(p => p.VehicleType == vehicle.VehicleType);
+            return parkingSpots.Find(p => p.VehicleType == vehicle.VehicleType && p.IsAvailable == true);
         }
 
         public static ParkingSpot FindBookedSlot(Vehicle vehicle)
@@ -43,7 +43,9 @@ namespace ParkingLotSimulation
         public string VehicleType { get; set; }
         public Vehicle Vehicle { get; set; }
         public int SlotId { get; set; }
-
+        public double ParkingFee { get; set; }
+        public ParkingMeter Meter { get; set; }
+        
         public void Park(ParkingLotSimulation.Vehicle vehicle)
         {
             ParkingSpot ps = ParkingLot.FindFreeSlot(vehicle);
@@ -51,6 +53,7 @@ namespace ParkingLotSimulation
             {
                 ps.IsAvailable = false;
                 ps.Vehicle = vehicle;
+                ps.Meter.parkedTime = DateTime.Now;
                 Console.WriteLine("{0} (No : {1}) Parked Successfully at Slot Id : {2}", vehicle.VehicleType, vehicle.VehicleNumber, ps.SlotId);
                 Console.WriteLine("Press any key to Exit");
                 Console.ReadKey();
@@ -70,6 +73,7 @@ namespace ParkingLotSimulation
             if (ps != null)
             {
                 ps.IsAvailable = true;
+                ps.Meter.AmoutPayable(ps);
                 Console.WriteLine("{0} Number : {1} UnParked Successfully from Slot ID : {2}", ps.VehicleType, vehicle.VehicleNumber, ps.SlotId);
                 ps.Vehicle.VehicleNumber = null;
                 Console.WriteLine("Press any Key to goto Welcome Screen");
@@ -92,6 +96,8 @@ namespace ParkingLotSimulation
             this.IsAvailable = true;
             this.VehicleType = "Car";
             this.SlotId = slotId;
+            this.ParkingFee = 25;
+            this.Meter = new ParkingMeter();
         }
     }
 
@@ -103,6 +109,8 @@ namespace ParkingLotSimulation
             this.IsAvailable = true;
             this.VehicleType = "Bike";
             this.SlotId = slotId;
+            this.ParkingFee = 10;
+            this.Meter = new ParkingMeter();
         }
     }
 
@@ -110,5 +118,22 @@ namespace ParkingLotSimulation
     {
         public string VehicleNumber { get; set; }
         public string VehicleType { get; set; }
+    }
+
+    public class ParkingMeter
+    {
+        public DateTime parkedTime { get; set; }
+
+        internal void AmoutPayable(ParkingSpot ps)
+        {
+            int totalTime = (DateTime.Now - ps.Meter.parkedTime).Minutes;
+            Console.WriteLine("Total Minutes {0} (No : {1}) Parked is : {2} Minutes", ps.VehicleType,ps.Vehicle.VehicleNumber, totalTime);
+
+            
+            double amountPayable = (totalTime * ps.ParkingFee) / 60;
+
+            Console.WriteLine("Total Amount Payable is : ${0}", amountPayable);
+        }
+
     }
 }
